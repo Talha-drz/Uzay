@@ -445,7 +445,7 @@
             isRunning: true,
             player: {
                 x: canvas.width / 2 - 25,
-                y: canvas.height - 100,
+                y: canvas.height - (canvas.height / 4), // OYUNCU YUKARI TAŞINDI
                 width: 50,
                 height: 60,
                 speed: 7,
@@ -907,6 +907,7 @@
             game.health = 100;
             game.isRunning = true;
             game.player.x = canvas.width / 2 - 25;
+            game.player.y = canvas.height - (canvas.height / 4); // OYUNCU YUKARI TAŞINDI
             game.enemy.x = canvas.width / 2 - 25;
             game.bullets = [];
             game.enemyBullets = [];
