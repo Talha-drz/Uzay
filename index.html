@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uzay Savaşı Oyunu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0c0c2e, #1a1a40);
+            color: #fff;
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #00d4ff, #0088ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+            letter-spacing: 1.5px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #aaa;
+        }
+        
+        .game-container {
+            position: relative;
+            width: 100%;
+            height: 650px;
+            background-color: rgba(0, 0, 30, 0.7);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 100, 255, 0.3);
+            border: 2px solid rgba(0, 150, 255, 0.2);
+        }
+        
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .control-group {
+            background: rgba(0, 20, 50, 0.7);
+            padding: 15px 25px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 150, 255, 0.3);
+        }
+        
+        .control-group h3 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .key {
+            display: inline-block;
+            background: rgba(0, 40, 80, 0.9);
+            padding: 8px 15px;
+            margin: 0 5px;
+            border-radius: 6px;
+            border: 1px solid rgba(0, 150, 255, 0.5);
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(0, 150, 255, 0.3);
+        }
+        
+        /* Can panelleri */
+        .health-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 20, 50, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border: 1px solid rgba(0, 150, 255, 0.3);
+            z-index: 10;
+            width: 250px;
+        }
+        
+        .health-bar-container {
+            width: 100%;
+            height: 20px;
+            background: rgba(0, 40, 80, 0.8);
+            border-radius: 10px;
+            margin-top: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 150, 255, 0.3);
+        }
+        
+        .health-bar {
+            height: 100%;
+            background: linear-gradient(to right, #ff3333, #ff9900, #33cc33);
+            border-radius: 10px;
+            width: 100%;
+            transition: width 0.5s ease;
+        }
+        
+        .score-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 20, 50, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border: 1px solid rgba(0, 150, 255, 0.3);
+            z-index: 10;
+            width: 250px;
+        }
+        
+        .star-count {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        
+        .star-icon {
+            color: gold;
+            font-size: 1.5rem;
+            margin-right: 5px;
+            text-shadow: 0 0 10px gold;
+        }
+        
+        .instructions {
+            background: rgba(0, 20, 50, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            max-width: 900px;
+            border: 1px solid rgba(0, 150, 255, 0.3);
+        }
+        
+        .instructions p {
+            margin: 5px 0;
+            color: #ccc;
+            line-height: 1.5;
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            display: none;
+        }
+        
+        .game-over h2 {
+            font-size: 3.5rem;
+            color: #ff3333;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
+        }
+        
+        .game-over p {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+        }
+        
+        .restart-btn {
+            background: linear-gradient(to right, #ff3366, #ff0033);
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        
+        .restart-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 0, 51, 0.7);
+        }
+        
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+        
+        /* Başarı yıldızları (sol üstte belirecek) */
+        .achievement-star {
+            position: absolute;
+            top: 20px;
+            left: 300px;
+            color: gold;
+            font-size: 2rem;
+            text-shadow: 0 0 15px gold;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.5s, transform 0.5s;
+        }
+        
+        .enemy-info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 20, 50, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 150, 255, 0.3);
+            z-index: 10;
+            width: 300px;
+            text-align: left;
+        }
+        
+        .enemy-health {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .enemy-health-bar {
+            flex-grow: 1;
+            height: 15px;
+            background: rgba(255, 0, 0, 0.3);
+            border-radius: 7px;
+            overflow: hidden;
+            margin-left: 10px;
+        }
+        
+        .enemy-health-fill {
+            height: 100%;
+            background: linear-gradient(to right, #ff3333, #ff9900);
+            width: 100%;
+            transition: width 0.3s;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        
+        @keyframes starPop {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.5); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+        
+        @media (max-width: 768px) {
+            .game-container {
+                height: 500px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                gap: 15px;
+            }
+            
+            .control-group {
+                padding: 10px 15px;
+            }
+            
+            .health-container, .score-container {
+                width: 200px;
+                padding: 10px;
+            }
+            
+            .enemy-info {
+                width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="container">
+        <h1>UZAY SAVAŞI - GELİŞMİŞ</h1>
+        <p class="subtitle">Düşmanları 10 isabetle vurun, canınızı %50 artırın ve yıldızları toplayın!</p>
+        
+        <div class="game-container">
+            <!-- Can paneli (sol üst) -->
+            <div class="health-container">
+                <div>CAN: <span id="healthValue">100</span>%</div>
+                <div class="health-bar-container">
+                    <div class="health-bar" id="healthBar"></div>
+                </div>
+            </div>
+            
+            <!-- Skor paneli (sağ üst) -->
+            <div class="score-container">
+                <div>SKOR: <span id="score">0</span></div>
+                <div class="star-count">
+                    <span class="star-icon">★</span>
+                    <span id="starCount">0</span>
+                </div>
+            </div>
+            
+            <!-- Düşman bilgisi (sol alt) -->
+            <div class="enemy-info">
+                <div>AKTİF DÜŞMAN: <span id="activeEnemy">0</span>/5</div>
+                <div class="enemy-health">
+                    <span>CAN:</span>
+                    <div class="enemy-health-bar">
+                        <div class="enemy-health-fill" id="enemyHealthBar"></div>
+                    </div>
+                    <span id="enemyHealthValue" style="margin-left: 10px;">100%</span>
+                </div>
+            </div>
+            
+            <!-- Başarı yıldızı (sol üst) -->
+            <div class="achievement-star" id="achievementStar">★</div>
+            
+            <canvas id="gameCanvas"></canvas>
+            
+            <div class="game-over" id="gameOverScreen">
+                <h2>OYUN BİTTİ</h2>
+                <p>Skorunuz: <span id="finalScore">0</span></p>
+                <p>Topladığınız Yıldız: <span id="finalStars">0</span></p>
+                <button class="restart-btn" id="restartBtn">TEKRAR OYNA</button>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <h3>HAREKET KONTROLLERİ</h3>
+                <div>
+                    <span class="key">←</span> SOL
+                    <span class="key">→</span> SAĞ
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>ATEŞ ETME</h3>
+                <div>
+                    <span class="key">SPACE</span> Ateş Et
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>ÖZELLİKLER</h3>
+                <div>
+                    <span class="key">H</span> Can Artır (%50)
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <p>• Düşmanları vurmak için 10 isabet gerekiyor (her mermi 1 isabet sayılır).</p>
+            <p>• Her düşmanı vurduğunuzda canınız %50 artar (maksimum %100).</p>
+            <p>• Her düşman vurulduğunda sol üstte bir yıldız belirir.</p>
+            <p>• Toplam 5 düşman vardır, hepsini vurmayı deneyin!</p>
+            <p>• Sağ ve sol ok tuşları ile hareket edebilirsiniz.</p>
+            <p>• Space tuşu ile ateş edebilirsiniz.</p>
+        </div>
+    </div>
+
+    <script>
+        // Oyun değişkenleri
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const healthValueElement = document.getElementById('healthValue');
+        const healthBarElement = document.getElementById('healthBar');
+        const starCountElement = document.getElementById('starCount');
+        const activeEnemyElement = document.getElementById('activeEnemy');
+        const enemyHealthBarElement = document.getElementById('enemyHealthBar');
+        const enemyHealthValueElement = document.getElementById('enemyHealthValue');
+        const achievementStarElement = document.getElementById('achievementStar');
+        const finalScoreElement = document.getElementById('finalScore');
+        const finalStarsElement = document.getElementById('finalStars');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const restartBtn = document.getElementById('restartBtn');
+        const starsContainer = document.getElementById('stars');
+        
+        // Canvas boyutunu ayarla
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+        
+        // Yıldızları oluştur (arkaplan için)
+        for (let i = 0; i < 150; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            star.style.width = Math.random() * 3 + 'px';
+            star.style.height = star.style.width;
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+        
+        // Oyun durumu
+        let game = {
+            score: 0,
+            stars: 0,
+            health: 100,
+            maxHealth: 100,
+            isRunning: true,
+            player: {
+                x: canvas.width / 2 - 25,
+                y: canvas.height - 100,
+                width: 50,
+                height: 60,
+                speed: 7,
+                color: '#00aaff'
+            },
+            enemy: {
+                x: canvas.width / 2 - 25,
+                y: 40,
+                width: 50,
+                height: 60,
+                speed: 1,
+                color: '#ff5555',
+                lastShotTime: 0,
+                shotDelay: 800,
+                health: 100, // 10 isabet = 100 can (her isabet 10 can azaltır)
+                maxHealth: 100,
+                active: true,
+                id: 1 // 5 düşman olacak
+            },
+            bullets: [],
+            enemyBullets: [],
+            keys: {},
+            enemiesDefeated: 0,
+            totalEnemies: 5
+        };
+        
+        // Can barını güncelle
+        function updateHealthBar() {
+            const healthPercent = (game.health / game.maxHealth) * 100;
+            healthBarElement.style.width = healthPercent + '%';
+            healthValueElement.textContent = Math.round(healthPercent);
+            
+            // Can barı rengini cana göre ayarla
+            if (healthPercent > 70) {
+                healthBarElement.style.background = 'linear-gradient(to right, #33cc33, #99ff66)';
+            } else if (healthPercent > 30) {
+                healthBarElement.style.background = 'linear-gradient(to right, #ff9900, #ffcc00)';
+            } else {
+                healthBarElement.style.background = 'linear-gradient(to right, #ff3333, #ff6666)';
+            }
+        }
+        
+        // Düşman can barını güncelle
+        function updateEnemyHealthBar() {
+            const healthPercent = (game.enemy.health / game.enemy.maxHealth) * 100;
+            enemyHealthBarElement.style.width = healthPercent + '%';
+            enemyHealthValueElement.textContent = Math.round(healthPercent) + '%';
+            activeEnemyElement.textContent = game.enemy.id;
+        }
+        
+        // Yıldız gösterimi
+        function showAchievementStar() {
+            achievementStarElement.style.opacity = '1';
+            achievementStarElement.style.transform = 'scale(1.5)';
+            achievementStarElement.style.animation = 'starPop 0.8s';
+            
+            // 1.5 saniye sonra yıldızı gizle
+            setTimeout(() => {
+                achievementStarElement.style.opacity = '0';
+                achievementStarElement.style.transform = 'scale(1)';
+            }, 1500);
+        }
+        
+        // Oyun nesnelerini çiz
+        function drawPlayer() {
+            // Jet gövdesi
+            ctx.fillStyle = game.player.color;
+            ctx.fillRect(game.player.x, game.player.y, game.player.width, game.player.height);
+            
+            // Jet detayları
+            ctx.fillStyle = '#0066aa';
+            ctx.fillRect(game.player.x + 5, game.player.y + 5, game.player.width - 10, game.player.height - 10);
+            
+            // Jet motoru
+            ctx.fillStyle = '#ff9900';
+            ctx.fillRect(game.player.x + 15, game.player.y + game.player.height - 10, 20, 15);
+            
+            // Jet kanatları
+            ctx.fillStyle = game.player.color;
+            ctx.fillRect(game.player.x - 10, game.player.y + 20, 10, 15);
+            ctx.fillRect(game.player.x + game.player.width, game.player.y + 20, 10, 15);
+            
+            // Can durumuna göre ekstra efekt
+            if (game.health < 30) {
+                // Düşük can durumunda titreme efekti
+                ctx.fillStyle = 'rgba(255, 0, 0, 0.3)';
+                ctx.fillRect(game.player.x - 5, game.player.y - 5, game.player.width + 10, game.player.height + 10);
+            }
+        }
+        
+        function drawEnemy() {
+            if (!game.enemy.active) return;
+            
+            // Düşman jet gövdesi
+            ctx.fillStyle = game.enemy.color;
+            ctx.fillRect(game.enemy.x, game.enemy.y, game.enemy.width, game.enemy.height);
+            
+            // Düşman jet detayları
+            ctx.fillStyle = '#aa2222';
+            ctx.fillRect(game.enemy.x + 5, game.enemy.y + 5, game.enemy.width - 10, game.enemy.height - 10);
+            
+            // Düşman jet motoru
+            ctx.fillStyle = '#ff3300';
+            ctx.fillRect(game.enemy.x + 15, game.enemy.y, 20, 10);
+            
+            // Düşman jet kanatları
+            ctx.fillStyle = game.enemy.color;
+            ctx.fillRect(game.enemy.x - 10, game.enemy.y + 20, 10, 15);
+            ctx.fillRect(game.enemy.x + game.enemy.width, game.enemy.y + 20, 10, 15);
+            
+            // Düşmanın can durumuna göre hasar efekti
+            if (game.enemy.health < 50) {
+                ctx.fillStyle = 'rgba(255, 255, 0, 0.3)';
+                ctx.fillRect(game.enemy.x - 5, game.enemy.y - 5, game.enemy.width + 10, game.enemy.height + 10);
+            }
+            
+            // Düşman ID'sini göster
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`D${game.enemy.id}`, game.enemy.x + game.enemy.width/2, game.enemy.y + game.enemy.height/2 + 5);
+        }
+        
+        function drawBullets() {
+            // Oyuncu mermileri
+            game.bullets.forEach(bullet => {
+                // Mermi çekirdeği
+                ctx.fillStyle = '#ffff00';
+                ctx.beginPath();
+                ctx.arc(bullet.x, bullet.y, bullet.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Mermi parıltısı
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(bullet.x, bullet.y, bullet.radius / 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Mermi kuyruğu
+                ctx.strokeStyle = 'rgba(255, 255, 0, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(bullet.x, bullet.y + bullet.radius);
+                ctx.lineTo(bullet.x, bullet.y + bullet.radius + 10);
+                ctx.stroke();
+            });
+            
+            // Düşman mermileri
+            game.enemyBullets.forEach(bullet => {
+                // Mermi çekirdeği
+                ctx.fillStyle = '#ff5555';
+                ctx.beginPath();
+                ctx.arc(bullet.x, bullet.y, bullet.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Mermi parıltısı
+                ctx.fillStyle = '#ffaaaa';
+                ctx.beginPath();
+                ctx.arc(bullet.x, bullet.y, bullet.radius / 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Mermi kuyruğu
+                ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(bullet.x, bullet.y - bullet.radius);
+                ctx.lineTo(bullet.x, bullet.y - bullet.radius - 10);
+                ctx.stroke();
+            });
+        }
+        
+        // Yeni düşman oluştur
+        function createNewEnemy() {
+            if (game.enemiesDefeated >= game.totalEnemies) {
+                // Tüm düşmanlar vuruldu
+                game.enemy.active = false;
+                return;
+            }
+            
+            game.enemy.id = game.enemiesDefeated + 1;
+            game.enemy.x = Math.random() * (canvas.width - game.enemy.width);
+            game.enemy.y = 40;
+            game.enemy.health = game.enemy.maxHealth;
+            game.enemy.active = true;
+            game.enemy.speed = 3 + Math.random() * 2; // Rastgele hız
+            game.enemy.shotDelay = 600 + Math.random() * 400; // Rastgele ateş hızı
+            
+            updateEnemyHealthBar();
+        }
+        
+        // Oyuncu ateş etme
+        function playerShoot() {
+            game.bullets.push({
+                x: game.player.x + game.player.width / 2,
+                y: game.player.y,
+                radius: 5,
+                speed: 10,
+                damage: 10 // Her mermi 10 can hasarı verir (10 mermi = 100 can)
+            });
+        }
+        
+        // Düşman ateş etme
+        function enemyShoot() {
+            const currentTime = Date.now();
+            if (currentTime - game.enemy.lastShotTime > game.enemy.shotDelay) {
+                game.enemyBullets.push({
+                    x: game.enemy.x + game.enemy.width / 2,
+                    y: game.enemy.y + game.enemy.height,
+                    radius: 5,
+                    speed: 7,
+                    damage: 5
+                });
+                game.enemy.lastShotTime = currentTime;
+            }
+        }
+        
+        // Can artırma
+        function increaseHealth() {
+            if (game.health < game.maxHealth) {
+                game.health = Math.min(game.maxHealth, game.health + 50);
+                updateHealthBar();
+                return true;
+            }
+            return false;
+        }
+        
+        // Çarpışma kontrolü
+        function checkCollision(rect1, rect2) {
+            return rect1.x < rect2.x + rect2.width &&
+                   rect1.x + rect1.width > rect2.x &&
+                   rect1.y < rect2.y + rect2.height &&
+                   rect1.y + rect1.height > rect2.y;
+        }
+        
+        // Oyun güncelleme
+        function updateGame() {
+            if (!game.isRunning) return;
+            
+            // Oyuncu hareketi
+            if (game.keys['ArrowLeft'] && game.player.x > 0) {
+                game.player.x -= game.player.speed;
+            }
+            if (game.keys['ArrowRight'] && game.player.x < canvas.width - game.player.width) {
+                game.player.x += game.player.speed;
+            }
+            
+            // H tuşuna basıldığında can artır (test için)
+            if (game.keys['h'] || game.keys['H']) {
+                if (increaseHealth()) {
+                    game.keys['h'] = false;
+                    game.keys['H'] = false;
+                }
+            }
+            
+            // Düşman hareketi
+            if (game.enemy.active) {
+                // Düşman, oyuncuyu takip eder
+                if (game.enemy.x < game.player.x - 5) {
+                    game.enemy.x += game.enemy.speed;
+                } else if (game.enemy.x > game.player.x + 5) {
+                    game.enemy.x -= game.enemy.speed;
+                }
+                
+                // Düşman ateş etme (hedef hizaya geldiğinde)
+                const enemyCenterX = game.enemy.x + game.enemy.width / 2;
+                const playerCenterX = game.player.x + game.player.width / 2;
+                
+                if (Math.abs(enemyCenterX - playerCenterX) < 15) {
+                    enemyShoot();
+                }
+            }
+            
+            // Mermileri güncelle
+            // Oyuncu mermileri
+            for (let i = game.bullets.length - 1; i >= 0; i--) {
+                game.bullets[i].y -= game.bullets[i].speed;
+                
+                // Ekran dışına çıkan mermileri kaldır
+                if (game.bullets[i].y < 0) {
+                    game.bullets.splice(i, 1);
+                    continue;
+                }
+                
+                // Düşman vurma kontrolü
+                if (game.enemy.active) {
+                    const bulletRect = {
+                        x: game.bullets[i].x - game.bullets[i].radius,
+                        y: game.bullets[i].y - game.bullets[i].radius,
+                        width: game.bullets[i].radius * 2,
+                        height: game.bullets[i].radius * 2
+                    };
+                    
+                    const enemyRect = game.enemy;
+                    
+                    if (checkCollision(bulletRect, enemyRect)) {
+                        // Düşmana hasar ver
+                        game.enemy.health -= game.bullets[i].damage;
+                        updateEnemyHealthBar();
+                        
+                        // Düşman vurulduğunda efekt
+                        createHitEffect(game.bullets[i].x, game.bullets[i].y);
+                        
+                        game.bullets.splice(i, 1);
+                        
+                        // Düşman canı bitti mi?
+                        if (game.enemy.health <= 0) {
+                            // Düşman vuruldu
+                            game.enemy.active = false;
+                            game.score += 500;
+                            game.enemiesDefeated++;
+                            
+                            // Canı %50 artır
+                            increaseHealth();
+                            
+                            // Yıldız ekle ve göster
+                            game.stars++;
+                            starCountElement.textContent = game.stars;
+                            showAchievementStar();
+                            
+                            scoreElement.textContent = game.score;
+                            
+                            // Yeni düşman oluştur
+                            setTimeout(() => {
+                                createNewEnemy();
+                            }, 1500);
+                        }
+                        
+                        continue;
+                    }
+                }
+            }
+            
+            // Düşman mermileri
+            for (let i = game.enemyBullets.length - 1; i >= 0; i--) {
+                game.enemyBullets[i].y += game.enemyBullets[i].speed;
+                
+                // Ekran dışına çıkan mermileri kaldır
+                if (game.enemyBullets[i].y > canvas.height) {
+                    game.enemyBullets.splice(i, 1);
+                    continue;
+                }
+                
+                // Oyuncu vurma kontrolü
+                const bulletRect = {
+                    x: game.enemyBullets[i].x - game.enemyBullets[i].radius,
+                    y: game.enemyBullets[i].y - game.enemyBullets[i].radius,
+                    width: game.enemyBullets[i].radius * 2,
+                    height: game.enemyBullets[i].radius * 2
+                };
+                
+                const playerRect = game.player;
+                
+                if (checkCollision(bulletRect, playerRect)) {
+                    // Oyuncuya hasar ver
+                    game.health -= game.enemyBullets[i].damage;
+                    updateHealthBar();
+                    
+                    // Vurulma efekti
+                    createHitEffect(bulletRect.x + bulletRect.width/2, bulletRect.y + bulletRect.height/2);
+                    
+                    game.enemyBullets.splice(i, 1);
+                    
+                    // Oyuncu canı bitti mi?
+                    if (game.health <= 0) {
+                        gameOver();
+                    }
+                    
+                    continue;
+                }
+            }
+            
+            // Tüm düşmanlar vurulduysa
+            if (game.enemiesDefeated >= game.totalEnemies && !game.enemy.active) {
+                // Kazanma durumu
+                setTimeout(() => {
+                    gameOver(true);
+                }, 2000);
+            }
+        }
+        
+        // Vurulma efekti
+        function createHitEffect(x, y) {
+            // Kırmızı bir daire efekti
+            ctx.fillStyle = 'rgba(255, 50, 50, 0.7)';
+            ctx.beginPath();
+            ctx.arc(x, y, 15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Sarı bir daire efekti
+            ctx.fillStyle = 'rgba(255, 255, 50, 0.5)';
+            ctx.beginPath();
+            ctx.arc(x, y, 10, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        // Oyun çizimi
+        function drawGame() {
+            // Arkaplanı temizle
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Uzay arkaplanı
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, 'rgba(10, 10, 40, 0.3)');
+            gradient.addColorStop(1, 'rgba(20, 20, 60, 0.3)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Orta çizgi
+            ctx.strokeStyle = 'rgba(0, 200, 255, 0.2)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([10, 10]);
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height / 2);
+            ctx.lineTo(canvas.width, canvas.height / 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Oyun nesnelerini çiz
+            drawEnemy();
+            drawPlayer();
+            drawBullets();
+            
+            // Düşman bilgisi
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.font = 'bold 18px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Düşman ${game.enemy.id}/${game.totalEnemies}`, canvas.width/2, 30);
+            
+            // İsabet sayısı
+            const hitsNeeded = Math.ceil(game.enemy.health / 10);
+            ctx.fillText(`${hitsNeeded} isabet gerekiyor`, canvas.width/2, 55);
+        }
+        
+        // Oyun döngüsü
+        function gameLoop() {
+            updateGame();
+            drawGame();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Oyun bitirme
+        function gameOver(isWin = false) {
+            game.isRunning = false;
+            finalScoreElement.textContent = game.score;
+            finalStarsElement.textContent = game.stars;
+            
+            if (isWin) {
+                document.querySelector('.game-over h2').textContent = 'TEBRİKLER KAZANDINIZ!';
+                document.querySelector('.game-over h2').style.color = '#33cc33';
+            }
+            
+            gameOverScreen.style.display = 'flex';
+        }
+        
+        // Oyunu yeniden başlat
+        function restartGame() {
+            game.score = 0;
+            game.stars = 0;
+            game.health = 100;
+            game.isRunning = true;
+            game.player.x = canvas.width / 2 - 25;
+            game.enemy.x = canvas.width / 2 - 25;
+            game.bullets = [];
+            game.enemyBullets = [];
+            game.enemiesDefeated = 0;
+            game.enemy.active = true;
+            game.enemy.health = game.enemy.maxHealth;
+            
+            scoreElement.textContent = '0';
+            starCountElement.textContent = '0';
+            updateHealthBar();
+            updateEnemyHealthBar();
+            
+            gameOverScreen.style.display = 'none';
+            document.querySelector('.game-over h2').textContent = 'OYUN BİTTİ';
+            document.querySelector('.game-over h2').style.color = '#ff3333';
+            
+            createNewEnemy();
+        }
+        
+        // Klavye olayları
+        window.addEventListener('keydown', (e) => {
+            game.keys[e.key] = true;
+            
+            if (e.key === ' ' && game.isRunning) {
+                playerShoot();
+                e.preventDefault();
+            }
+        });
+        
+        window.addEventListener('keyup', (e) => {
+            game.keys[e.key] = false;
+        });
+        
+        // Yeniden başlatma butonu
+        restartBtn.addEventListener('click', restartGame);
+        
+        // Pencere boyutu değiştiğinde canvas'ı yeniden boyutlandır
+        window.addEventListener('resize', () => {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+            createNewEnemy();
+        });
+        
+        // Oyunu başlat
+        updateHealthBar();
+        createNewEnemy();
+        gameLoop();
+    </script>
+</body>
+</html>
