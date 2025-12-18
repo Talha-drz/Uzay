@@ -580,14 +580,58 @@
         const starCountElement = document.getElementById('starCount');
 
     const mtn = document.getElementById('subtitle');
-const cml = [
+const cmlll = [
     "Mükemmel atış! Harika gidiyorsun!",
     "Tam isabet! Gökyüzü senin!",
     "Efsanesin! Bir uçak daha düştü!",
     "Muhteşem! Durmak yok, devam!",
-    "Ustalık bu! Daha da güçleniyorsun!"
+    "Ustalık bu! Daha da güçleniyorsun!",
+    "Hazır ol!",
+    "Devam!",
+    "Isınıyoruz 😄",
+    "Daha bitmedi!",
+    "Hızlanıyor!"
 ];
-    
+    // Sağa hareket yazıları
+const sagaListesi = [
+    "Kaç kaaaç 👉",
+    "Sağa kır!",
+    "Sağdan ver!",
+    "Sağa uç 🚀",
+    "Çek sağa!",
+    "Sağ itki 🚀",
+    "Sağ motor!",
+    "SAĞ!"
+];
+
+// Sola hareket yazıları
+const solaListesi = [
+    "Hop sola 👈",
+    "Sola bas!",
+    "Sol ver!",
+    "Sola sıvış 😄",
+    "Çek sola!",
+    "Sol itki 🚀",
+    "Sol motor!",
+    "SOL!"
+];
+    // Genel aksiyon yazıları (bomba + evrensel)
+const bombeListesi = [
+    "Al sana bombe 💣",
+    "BOMBAAA! 💥",
+    "Tak bombayı 🔥",
+    "Hediye geldi 💣",
+    "Patla bakalım 💥",
+    "Bomba yolla 🚀",
+    "Al bunu!",
+    "Buyur 😄",
+    "Yakala!",
+    "Geldi!",
+    "Hop!",
+    "Çak!",
+    "Tam isabet!",
+    "Sürpriz!"
+];
         const activeEnemyElement = document.getElementById('activeEnemy');
         const enemyHealthBarElement = document.getElementById('enemyHealthBar');
         const enemyHealthValueElement = document.getElementById('enemyHealthValue');
@@ -794,28 +838,31 @@ const cml = [
         
         // Yeni düşman oluştur
         function createNewEnemy() {
-            if (game.enemiesDefeated >= game.totalEnemies) {
-                game.enemy.active = false;
-                
-                game.health = Math.min(game.maxHealth, game.health + 50);
-                return;
-            }
-            if(sayı===0)
-            {
-            sayı+=1;
-            }else{
-            sayı+=1;
-                mtn.textContent=mtn[sayı];}
-            game.enemy.id = game.enemiesDefeated + 1;
-            game.enemy.x = Math.random() * (canvas.width - game.enemy.width);
-            game.enemy.y = 40;
-            game.enemy.health = game.enemy.maxHealth;
-            game.enemy.active = true;
-            game.enemy.speed = 3 + Math.random() * 2;
-            game.enemy.shotDelay = 600 + Math.random() * 400;
-            
-            updateEnemyHealthBar();
-        }
+
+    if (game.enemiesDefeated >= game.totalEnemies) {
+        game.enemy.active = false;
+        game.health = Math.min(game.maxHealth, game.health + 50);
+        return;
+    }
+
+    // 2. düşmandan itibaren yazı değişsin
+    if (sayı > 0) {
+        const index = (sayı - 1) % cmlll.length;
+        mtn.textContent = cmlll[index];
+    }
+
+    sayı++; // EN SONA YAKIN OLMALI
+
+    game.enemy.id = game.enemiesDefeated + 1;
+    game.enemy.x = Math.random() * (canvas.width - game.enemy.width);
+    game.enemy.y = 40;
+    game.enemy.health = game.enemy.maxHealth;
+    game.enemy.active = true;
+    game.enemy.speed = 3 + Math.random() * 2;
+    game.enemy.shotDelay = 600 + Math.random() * 400;
+
+    updateEnemyHealthBar();
+}
         
         // Oyuncu ateş etme
         function playerShoot() {
@@ -855,7 +902,7 @@ const cml = [
         // Can artırma
         function increaseHealth() {
             if (game.health < game.maxHealth) {
-                game.health = Math.min(game.maxHealth, game.health + 20);
+                game.health = Math.min(game.maxHealth, game.health + 0);
                 updateHealthBar();
                 
                 // Mobilde can butonuna haptic feedback
@@ -1109,9 +1156,13 @@ const cml = [
         
         // Mobil kontrol olayları
         leftBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            leftPressed = true;
-        });
+    e.preventDefault();
+    leftPressed = true;
+
+    // Rastgele sola yazısı seç
+    const randomText = solaListesi[Math.floor(Math.random() * solaListesi.length)];
+    leftBtn.textContent = randomText;
+});
         
         leftBtn.addEventListener('touchend', (e) => {
             e.preventDefault();
@@ -1133,9 +1184,12 @@ const cml = [
         });
         
         rightBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            rightPressed = true;
-        });
+    e.preventDefault();
+    rightPressed = true;
+
+    const randomText = sagaListesi[Math.floor(Math.random() * sagaListesi.length)];
+    rightBtn.textContent = randomText;
+});
         
         rightBtn.addEventListener('touchend', (e) => {
             e.preventDefault();
@@ -1157,9 +1211,13 @@ const cml = [
         });
         
         fireBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            playerShoot();
-        });
+    e.preventDefault();
+
+    const randomText = bombeListesi[Math.floor(Math.random() * bombeListesi.length)];
+    fireBtn.textContent = randomText;
+
+    playerShoot();
+});
         
         fireBtn.addEventListener('mousedown', (e) => {
             e.preventDefault();
