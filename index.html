@@ -1,555 +1,405 @@
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Grup Takip Sistemi | OCR ile Sayı Takibi</title>
-    <!-- Tesseract.js CDN -->
-    <script src="https://unpkg.com/tesseract.js@5.0.5/dist/tesseract.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Askeri Şafak Sayacı | İzinli ve İzinsiz Ayrı</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none;
         }
 
         body {
-            font-family: 'Segoe UI', 'Roboto', system-ui, -apple-system, sans-serif;
+            font-family: 'Courier New', Courier, monospace;
+            background: #1a1a1a;
+            color: #e0e0e0;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: background-color 0.2s ease;
-            background-color: #f4f7fc;
             padding: 20px;
         }
 
-        /* Ana kart */
-        .card {
-            max-width: 750px;
+        .container {
+            max-width: 1000px;
             width: 100%;
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(2px);
-            border-radius: 3rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.05);
-            padding: 2rem 1.8rem;
-            text-align: center;
-            transition: all 0.2s;
-            border: 1px solid rgba(255,255,255,0.4);
+            background: #2c2c2c;
+            border: 2px solid #4a6b3c;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 0 30px rgba(74, 107, 60, 0.5);
         }
 
         h1 {
+            text-align: center;
+            color: #7cb86a;
             font-size: 2.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #1e2b3c, #0f4c5c);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            letter-spacing: -0.5px;
-            margin-bottom: 0.5rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px #4a6b3c;
         }
 
-        .sub {
-            color: #2c6979;
-            margin-bottom: 1.8rem;
-            font-weight: 500;
-            border-bottom: 1px solid #cbd5e1;
-            display: inline-block;
-            padding-bottom: 4px;
+        .subtitle {
+            text-align: center;
+            color: #b0b0b0;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            font-style: italic;
         }
 
-        /* video kutusu */
-        .camera-box {
-            background: #000;
-            border-radius: 2rem;
-            overflow: hidden;
-            margin: 1.2rem 0;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            border: 2px solid #ffffff80;
-        }
-
-        video {
-            width: 100%;
-            height: auto;
-            display: block;
-            background: #1a2a2f;
-            transform: scaleX(1);
-        }
-
-        /* buton */
-        .btn-primary {
-            background: #0f4c5c;
-            border: none;
-            color: white;
-            font-size: 1.6rem;
+        .baslangic-bilgi {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #7cb86a;
             font-weight: bold;
-            padding: 1rem 1.8rem;
-            border-radius: 4rem;
-            cursor: pointer;
-            margin: 0.8rem 0 1rem 0;
-            width: 100%;
-            transition: all 0.2s;
-            box-shadow: 0 5px 0 #06262e;
+            margin-bottom: 20px;
             letter-spacing: 1px;
         }
 
-        .btn-primary:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 0 #06262e;
-        }
-
-        .btn-primary:disabled {
-            opacity: 0.6;
-            transform: none;
-            cursor: not-allowed;
-        }
-
-        /* bilgi paneli */
-        .info-panel {
-            background: #eef2f5;
-            border-radius: 1.8rem;
-            padding: 1rem 1.2rem;
-            margin: 1rem 0;
+        .inputs {
             display: flex;
             flex-wrap: wrap;
-            justify-content: space-between;
-            gap: 1rem;
-            font-weight: 600;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 25px;
+            background: #3a3a3a;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #4a6b3c;
         }
 
-        .info-card {
-            background: white;
-            border-radius: 1.5rem;
-            padding: 0.8rem 1rem;
-            flex: 1;
-            min-width: 110px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        .inputs label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+            color: #7cb86a;
+            font-size: 0.95rem;
         }
 
-        .info-label {
-            font-size: 0.8rem;
+        .inputs input {
+            background: #222;
+            color: #fff;
+            border: 1px solid #4a6b3c;
+            padding: 8px 10px;
+            border-radius: 5px;
+            font-size: 1rem;
+            width: 100px;
+            text-align: center;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .inputs input:focus {
+            border-color: #7cb86a;
+            box-shadow: 0 0 8px #7cb86a;
+        }
+
+        .iki-kolon {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 700px) {
+            .iki-kolon {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: #3a3a3a;
+            border: 1px solid #4a6b3c;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        .panel h2 {
+            text-align: center;
+            color: #7cb86a;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #2c6979;
-            font-weight: 700;
+            letter-spacing: 2px;
+            border-bottom: 1px solid #4a6b3c;
+            padding-bottom: 10px;
         }
 
-        .info-value {
-            font-size: 2rem;
-            font-weight: 800;
-            line-height: 1.2;
-            color: #1e2b3c;
+        .panel .kutu {
+            background: #2c2c2c;
+            border: 1px solid #4a6b3c;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .panel .kutu:hover {
+            background: #444;
+            transform: translateY(-2px);
+        }
+
+        .panel .kutu h3 {
+            color: #7cb86a;
+            font-size: 1rem;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .panel .kutu p {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 5px #4a6b3c;
+        }
+
+        .panel .kalan-sure {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 5px #4a6b3c;
+            margin-bottom: 10px;
             word-break: break-word;
         }
 
-        .timer-value {
-            font-family: monospace;
-            font-size: 2.2rem;
-            letter-spacing: 2px;
+        .panel .toplam-bilgi {
+            font-size: 1rem;
+            color: #b0b0b0;
+            margin-top: 5px;
         }
 
-        .status-badge {
-            background: #f0f3f8;
-            border-radius: 2rem;
-            padding: 0.4rem 1rem;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #1e4663;
-            margin-top: 0.6rem;
-            display: inline-block;
-        }
-
-        .error-msg {
-            color: #c7254e;
-            background: #f9e6eb;
-            border-radius: 2rem;
-            padding: 0.4rem 1rem;
-            font-size: 0.8rem;
-            margin-top: 0.8rem;
-        }
-
-        footer {
-            font-size: 0.7rem;
-            margin-top: 1.4rem;
-            color: #5f7f8c;
-        }
-
-        @media (max-width: 550px) {
-            .card {
-                padding: 1.2rem;
-            }
-            .info-value {
-                font-size: 1.5rem;
-            }
-            .btn-primary {
-                font-size: 1.3rem;
-            }
-            h1 {
-                font-size: 1.8rem;
-            }
+        .panel .toplam-bilgi span {
+            color: #7cb86a;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
+    <div class="container">
+        <h1>🎖️ ŞAFAK SAYACI</h1>
+        <div class="subtitle">2 Temmuz 2026 Başlangıç Tarihli - İzinli ve İzinsiz Ayrı Hesaplama</div>
 
-<div class="card" id="appContainer">
-    <h1>📸 Grup Takip Sistemi</h1>
-    <div class="sub">OCR ile Sayı Kontrolü</div>
+        <div class="baslangic-bilgi">
+            📅 Askerlik Başlangıcı: 2 Temmuz 2026
+        </div>
 
-    <!-- Kamera görüntüsü -->
-    <div class="camera-box">
-        <video id="video" autoplay playsinline muted></video>
+        <div class="inputs">
+            <label>
+                Askerlik Süresi (gün):
+                <input type="number" id="askerlikSuresi" value="180" min="1" max="1000">
+            </label>
+            <label>
+                İzin Gün Sayısı:
+                <input type="number" id="izinGun" value="6" min="0" max="365">
+            </label>
+        </div>
+
+        <div class="iki-kolon">
+            <!-- Sol Panel: İzin Kullanmayan -->
+            <div class="panel" id="panel-izinsiz">
+                <h2>✅ İzin Kullanmayan</h2>
+                <div class="kutu">
+                    <h3>📅 Yapılan Gün</h3>
+                    <p><span id="gecenGunIzinsiz">0</span></p>
+                </div>
+                <div class="kutu">
+                    <h3>⏳ Kalan Gün</h3>
+                    <p><span id="kalanGunIzinsiz">0</span></p>
+                </div>
+                <div class="kutu">
+                    <h3>🧹 Yapılan Mıntıka</h3>
+                    <p><span id="yapilanMintikaIzinsiz">0</span></p>
+                </div>
+                <div class="kutu">
+                    <h3>🗓️ Kalan Mıntıka</h3>
+                    <p><span id="kalanMintikaIzinsiz">0</span></p>
+                </div>
+                <div class="kutu">
+                    <h3>⏱️ Kalan Süre</h3>
+                    <div class="kalan-sure" id="kalanSureIzinsiz">0 gün 0 saat 0 dakika 0 saniye</div>
+                    <div class="toplam-bilgi">
+                        Toplam: <span id="toplamDakikaIzinsiz">0</span> dakika <span id="toplamSaniyeIzinsiz">0</span> saniye
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sağ Panel: İzin Kullanan -->
+            <div class="panel" id="panel-izinli">
+                <h2>🏖️ İzin Kullanan (6 gün)</h2>
+                <div class="kutu">
+                    <h3>📅 Yapılan Gün</h3>
+                    <p><span id="gecenGunIzinli">0</span></p>
+                </div>
+                <div class="kutu">
+                    <h3>⏳ Kalan Gün</h3>
+                    <p><span id="kalanGunIzinli">0</span></p>
+                </div>
+                <div class="kutu">
+                    <h3>🧹 Yapılan Mıntıka</h3>
+                    <p><span id="yapilanMintikaIzinli">0</span></p>
+                </div>
+                <div class="kutu">
+                    <h3>🗓️ Kalan Mıntıka</h3>
+                    <p><span id="kalanMintikaIzinli">0</span></p>
+                </div>
+                <div class="kutu">
+                    <h3>⏱️ Kalan Süre</h3>
+                    <div class="kalan-sure" id="kalanSureIzinli">0 gün 0 saat 0 dakika 0 saniye</div>
+                    <div class="toplam-bilgi">
+                        Toplam: <span id="toplamDakikaIzinli">0</span> dakika <span id="toplamSaniyeIzinli">0</span> saniye
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="text-align: center; color: #7cb86a; font-size: 0.9rem; margin-top: 10px;">
+            * Pazar günleri mıntıkaya dahildir.
+        </div>
     </div>
 
-    <!-- Buton -->
-    <button id="saveBtn" class="btn-primary">🎯 Grup Boş Kaydet</button>
+    <script>
+        (function() {
+            // DOM elementleri - İzinsiz panel
+            const gecenGunIzinsizSpan = document.getElementById('gecenGunIzinsiz');
+            const kalanGunIzinsizSpan = document.getElementById('kalanGunIzinsiz');
+            const yapilanMintikaIzinsizSpan = document.getElementById('yapilanMintikaIzinsiz');
+            const kalanMintikaIzinsizSpan = document.getElementById('kalanMintikaIzinsiz');
+            const kalanSureIzinsizDiv = document.getElementById('kalanSureIzinsiz');
+            const toplamDakikaIzinsizSpan = document.getElementById('toplamDakikaIzinsiz');
+            const toplamSaniyeIzinsizSpan = document.getElementById('toplamSaniyeIzinsiz');
 
-    <!-- Bilgi kartları -->
-    <div class="info-panel">
-        <div class="info-card">
-            <div class="info-label">🔢 ANLIK OKUNAN SAYI</div>
-            <div class="info-value" id="currentNumberDisplay">—</div>
-        </div>
-        <div class="info-card">
-            <div class="info-label">📌 REFERANS SAYI</div>
-            <div class="info-value" id="referenceDisplay">—</div>
-        </div>
-        <div class="info-card">
-            <div class="info-label">⏳ KALAN SÜRE</div>
-            <div class="info-value timer-value" id="timerDisplay">—</div>
-        </div>
-    </div>
+            // DOM elementleri - İzinli panel
+            const gecenGunIzinliSpan = document.getElementById('gecenGunIzinli');
+            const kalanGunIzinliSpan = document.getElementById('kalanGunIzinli');
+            const yapilanMintikaIzinliSpan = document.getElementById('yapilanMintikaIzinli');
+            const kalanMintikaIzinliSpan = document.getElementById('kalanMintikaIzinli');
+            const kalanSureIzinliDiv = document.getElementById('kalanSureIzinli');
+            const toplamDakikaIzinliSpan = document.getElementById('toplamDakikaIzinli');
+            const toplamSaniyeIzinliSpan = document.getElementById('toplamSaniyeIzinli');
 
-    <div id="statusMessage" class="status-badge">⚙️ Sistem beklemede | Butona basarak başlatın</div>
-    <div id="errorMsg" class="error-msg" style="display: none;"></div>
-    <footer>Kamera sayı okumak için net bir alana yöneltin (rakamlar)</footer>
-</div>
+            // Inputlar
+            const askerlikSuresiInput = document.getElementById('askerlikSuresi');
+            const izinGunInput = document.getElementById('izinGun');
 
-<script>
-    // -------- DOM ELEMANLARI ----------
-    const video = document.getElementById('video');
-    const saveBtn = document.getElementById('saveBtn');
-    const currentNumberSpan = document.getElementById('currentNumberDisplay');
-    const referenceSpan = document.getElementById('referenceDisplay');
-    const timerDisplaySpan = document.getElementById('timerDisplay');
-    const statusDiv = document.getElementById('statusMessage');
-    const errorDiv = document.getElementById('errorMsg');
+            // Sabit başlangıç tarihi: 2 Temmuz 2026
+            const BASLANGIC_YIL = 2026;
+            const BASLANGIC_AY = 6;   // Temmuz (0 indeksli)
+            const BASLANGIC_GUN = 2;
 
-    // -------- GLOBAL STATE ----------
-    let referenceNumber = null;           // kaydedilen referans sayı (int)
-    let isWaiting = false;                // 60 saniye bekleme modu (kontrol yok)
-    let isComparingMode = false;          // periyodik karşılaştırma aktif mi
-    let countdownInterval = null;         // geri sayım interval id
-    let compareInterval = null;            // 1 saniyelik OCR karşılaştırma interval
-    let isOcrRunning = false;              // aynı anda birden çok OCR çalışmasın
-    let tesseractWorker = null;            // worker nesnesi
+            // Pazar günlerini sayan yardımcı fonksiyon
+            function pazarSayisi(baslangicTarihi, bitisTarihi) {
+                let sayac = 0;
+                let current = new Date(baslangicTarihi);
+                current.setHours(0, 0, 0, 0);
+                let end = new Date(bitisTarihi);
+                end.setHours(0, 0, 0, 0);
 
-    // kamera stream
-    let mediaStream = null;
+                if (end < current) return 0;
 
-    // -------- Helper: hata göster ----------
-    function showError(msg, duration = 3000) {
-        errorDiv.innerText = msg;
-        errorDiv.style.display = 'block';
-        setTimeout(() => {
-            if (errorDiv) errorDiv.style.display = 'none';
-        }, duration);
-    }
-
-    // -------- Arka plan rengini sıfırla (nötr) ----------
-    function resetBackground() {
-        document.body.style.backgroundColor = '#f4f7fc';
-    }
-
-    // -------- Arka planı duruma göre ayarla (sadece karşılaştırma modunda ve sayı geçerliyse) ----------
-    function setBackgroundByComparison(currentNum) {
-        // sadece karşılaştırma modunda, bekleme değil ve referans var
-        if (!isComparingMode || isWaiting || referenceNumber === null) return;
-        if (currentNum === null || isNaN(currentNum)) {
-            // geçersiz sayı okunursa arka planı bozma, nötr tut
-            return;
-        }
-        if (currentNum <= referenceNumber) {
-            document.body.style.backgroundColor = '#2b8c4a'; // yeşil ton
-        } else {
-            document.body.style.backgroundColor = '#c73f2c'; // kırmızı ton
-        }
-    }
-
-    // -------- Tesseract worker başlatma (sadece rakamlar için optimize) ----------
-    async function initTesseract() {
-        try {
-            if (tesseractWorker) return tesseractWorker;
-            // worker oluştur (ingilizce, ama rakamlar için whitelist)
-            const worker = await Tesseract.createWorker('eng', 1, {
-                logger: m => {} // sessiz mod, log istemiyoruz
-            });
-            // sadece rakamları tanıması için whitelist
-            await worker.setParameters({
-                tessedit_char_whitelist: '0123456789',
-                tessedit_ocr_engine_mode: '3'
-            });
-            tesseractWorker = worker;
-            return worker;
-        } catch (err) {
-            console.error("Tesseract başlatılamadı:", err);
-            showError("OCR motoru başlatılamadı! Sayfa yenileyin.");
-            return null;
-        }
-    }
-
-    // -------- Video frame'den canvas üretip OCR ile sayı okuma ----------
-    async function readNumberFromCamera() {
-        if (!video.videoWidth || !video.videoHeight) {
-            return null;
-        }
-        if (!tesseractWorker) {
-            await initTesseract();
-            if (!tesseractWorker) return null;
-        }
-
-        // canvas oluştur, video anlık görüntü al
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        try {
-            // Tesseract ile tanıma
-            const { data: { text } } = await tesseractWorker.recognize(canvas);
-            // text içinden ilk rakam grubunu bul
-            const matches = text.match(/\d+/g);
-            if (matches && matches.length > 0) {
-                const firstNumber = parseInt(matches[0], 10);
-                if (!isNaN(firstNumber)) {
-                    return firstNumber;
+                while (current <= end) {
+                    if (current.getDay() === 0) { // Pazar
+                        sayac++;
+                    }
+                    current.setDate(current.getDate() + 1);
                 }
+                return sayac;
             }
-            return null;
-        } catch (err) {
-            console.warn("OCR okuma hatası:", err);
-            return null;
-        }
-    }
 
-    // -------- Tek seferlik OCR çağrısı (buton için referans okuma) ----------
-    async function captureReferenceNumber() {
-        statusDiv.innerText = "🔍 Sayı okunuyor, lütfen bekleyin...";
-        saveBtn.disabled = true;
-        const number = await readNumberFromCamera();
-        saveBtn.disabled = false;
-        if (number !== null && !isNaN(number)) {
-            referenceNumber = number;
-            referenceSpan.innerText = referenceNumber;
-            statusDiv.innerText = `✅ Referans sayı ${referenceNumber} kaydedildi. 60 saniye bekleme başladı.`;
-            showError("", 0);
-            return true;
-        } else {
-            statusDiv.innerText = "❌ Sayı okunamadı! Kamerayı net rakamlara yöneltip tekrar deneyin.";
-            showError("Sayı okunamadı, lütfen kamerada belirgin rakamlar olduğundan emin olun.", 4000);
-            return false;
-        }
-    }
+            // Tek bir kişi için hesaplama yapıp sonuçları döndüren fonksiyon
+            function hesaplaTek(askerlikSuresi, izinGunSayisi) {
+                const baslangic = new Date(BASLANGIC_YIL, BASLANGIC_AY, BASLANGIC_GUN);
+                baslangic.setHours(0, 0, 0, 0);
 
-    // -------- Karşılaştırma için OCR + UI güncelleme (her saniye) ----------
-    async function performComparisonOCR() {
-        // sadece karşılaştırma modunda ve bekleme değilse
-        if (!isComparingMode || isWaiting) return;
-        if (isOcrRunning) {
-            // önceki OCR hala devam ediyor, atla
-            return;
-        }
-        isOcrRunning = true;
-        try {
-            const scannedNumber = await readNumberFromCamera();
-            let displayVal = "—";
-            let numericVal = null;
-            if (scannedNumber !== null && !isNaN(scannedNumber)) {
-                displayVal = scannedNumber;
-                numericVal = scannedNumber;
-            } else {
-                displayVal = "❓ Geçersiz";
-                numericVal = null;
+                // Eğer izin kullanıyorsa toplam askerlik süresinden izin günlerini düş
+                const toplamSure = askerlikSuresi - izinGunSayisi;
+                if (toplamSure < 0) toplamSure = 0;
+
+                const bitis = new Date(baslangic);
+                bitis.setDate(bitis.getDate() + toplamSure);
+                bitis.setHours(0, 0, 0, 0);
+
+                const simdi = new Date();
+
+                // Geçen gün sayısı (başlangıç günü 1. gün)
+                let gecenGun = Math.floor((simdi - baslangic) / (24 * 60 * 60 * 1000)) + 1;
+                if (gecenGun < 0) gecenGun = 0;
+
+                // Kalan gün sayısı
+                let farkMs = bitis - simdi;
+                if (farkMs < 0) farkMs = 0;
+                let kalanGun = Math.floor(farkMs / (24 * 60 * 60 * 1000));
+                if (kalanGun < 0) kalanGun = 0;
+
+                // Kalan süre detayları
+                let toplamSaniye = Math.floor(farkMs / 1000);
+                let gun = Math.floor(toplamSaniye / (24 * 3600));
+                let saat = Math.floor((toplamSaniye % (24 * 3600)) / 3600);
+                let dakika = Math.floor((toplamSaniye % 3600) / 60);
+                let saniye = toplamSaniye % 60;
+                let toplamDakika = Math.floor(toplamSaniye / 60);
+
+                // Mıntıka hesapları
+                let yapilanMintika = pazarSayisi(baslangic, simdi);
+                let kalanMintika = pazarSayisi(simdi, bitis);
+                if (farkMs === 0) kalanMintika = 0;
+
+                return {
+                    gecenGun,
+                    kalanGun,
+                    yapilanMintika,
+                    kalanMintika,
+                    kalanSureText: `${gun} gün ${saat} saat ${dakika} dakika ${saniye} saniye`,
+                    toplamDakika,
+                    toplamSaniye
+                };
             }
-            // anlık sayıyı göster
-            currentNumberSpan.innerText = displayVal;
-            
-            // arka plan güncellemesi (sadece numeric geçerli ise)
-            if (numericVal !== null && referenceNumber !== null && !isWaiting && isComparingMode) {
-                setBackgroundByComparison(numericVal);
-            } else if (numericVal === null && isComparingMode && !isWaiting) {
-                // okunamadıysa arka planı değiştirme (koru ama durum mesajı eklenebilir)
-                // herhangi bir hatalı durumda background resetlenmez, sadece son durumu korur.
-                // ama kullanıcıya bilgi verelim
-                if(!document.getElementById('ocrHint')) {
-                    // küçük ipucu
-                }
+
+            // Ana güncelleme fonksiyonu
+            function guncelle() {
+                const askerlikSuresi = parseInt(askerlikSuresiInput.value, 10) || 180;
+                const izinGun = parseInt(izinGunInput.value, 10) || 0;
+
+                // İzinsiz hesapla (izin gün sayısı 0 kabul edilir)
+                const sonucIzinsiz = hesaplaTek(askerlikSuresi, 0);
+
+                // İzinli hesapla (izin gün sayısı kullanılır)
+                const sonucIzinli = hesaplaTek(askerlikSuresi, izinGun);
+
+                // İzinsiz panel güncelle
+                gecenGunIzinsizSpan.textContent = sonucIzinsiz.gecenGun;
+                kalanGunIzinsizSpan.textContent = sonucIzinsiz.kalanGun;
+                yapilanMintikaIzinsizSpan.textContent = sonucIzinsiz.yapilanMintika;
+                kalanMintikaIzinsizSpan.textContent = sonucIzinsiz.kalanMintika;
+                kalanSureIzinsizDiv.textContent = sonucIzinsiz.kalanSureText;
+                toplamDakikaIzinsizSpan.textContent = sonucIzinsiz.toplamDakika;
+                toplamSaniyeIzinsizSpan.textContent = sonucIzinsiz.toplamSaniye;
+
+                // İzinli panel güncelle
+                gecenGunIzinliSpan.textContent = sonucIzinli.gecenGun;
+                kalanGunIzinliSpan.textContent = sonucIzinli.kalanGun;
+                yapilanMintikaIzinliSpan.textContent = sonucIzinli.yapilanMintika;
+                kalanMintikaIzinliSpan.textContent = sonucIzinli.kalanMintika;
+                kalanSureIzinliDiv.textContent = sonucIzinli.kalanSureText;
+                toplamDakikaIzinliSpan.textContent = sonucIzinli.toplamDakika;
+                toplamSaniyeIzinliSpan.textContent = sonucIzinli.toplamSaniye;
             }
-        } catch (err) {
-            console.error("Karşılaştırma OCR hatası", err);
-        } finally {
-            isOcrRunning = false;
-        }
-    }
 
-    // -------- Periyodik karşılaştırmayı başlat (her 1 saniye) ----------
-    function startComparisonLoop() {
-        if (compareInterval) {
-            clearInterval(compareInterval);
-            compareInterval = null;
-        }
-        isComparingMode = true;
-        isWaiting = false;
-        // hemen ilk okumayı yap
-        performComparisonOCR();
-        // ardından her 1000ms'de bir OCR ve karşılaştırma
-        compareInterval = setInterval(() => {
-            if (isComparingMode && !isWaiting) {
-                performComparisonOCR();
-            }
-        }, 1000);
-    }
+            // Olay dinleyicileri
+            askerlikSuresiInput.addEventListener('input', guncelle);
+            izinGunInput.addEventListener('input', guncelle);
 
-    // -------- Geri sayım başlat (60 saniye) ----------
-    function startCountdown(seconds = 60) {
-        if (countdownInterval) clearInterval(countdownInterval);
-        let remaining = seconds;
-        timerDisplaySpan.innerText = `${remaining} sn`;
-        
-        countdownInterval = setInterval(() => {
-            if (!isWaiting) {
-                // Eğer waiting modu dışarıdan false olursa (manuel reset) interval temizlenmeli
-                if (countdownInterval) clearInterval(countdownInterval);
-                return;
-            }
-            remaining--;
-            if (remaining <= 0) {
-                // süre bitti
-                clearInterval(countdownInterval);
-                countdownInterval = null;
-                if (isWaiting === true) {
-                    // bekleme bitti, karşılaştırma moduna geç
-                    isWaiting = false;
-                    statusDiv.innerText = "⏰ 60 saniye doldu! Şimdi her saniye karşılaştırma yapılıyor...";
-                    timerDisplaySpan.innerText = "0 sn";
-                    // Karşılaştırma döngüsünü başlat
-                    startComparisonLoop();
-                }
-            } else {
-                timerDisplaySpan.innerText = `${remaining} sn`;
-            }
-        }, 1000);
-    }
+            // Sayfa yüklendiğinde hesapla
+            guncelle();
 
-    // -------- Tüm zamanlayıcıları ve kontrolleri durdur (sıfırlama) ----------
-    function haltAllTimersAndComparisons() {
-        if (countdownInterval) {
-            clearInterval(countdownInterval);
-            countdownInterval = null;
-        }
-        if (compareInterval) {
-            clearInterval(compareInterval);
-            compareInterval = null;
-        }
-        isComparingMode = false;
-        isWaiting = false;
-        // Arka planı nötr yap
-        resetBackground();
-    }
-
-    // -------- "Grup Boş Kaydet" butonu ana aksiyonu ----------
-    async function onSaveButtonClick() {
-        // 1. Önceki tüm işlemleri durdur (sıfırla)
-        haltAllTimersAndComparisons();
-        
-        // 2. UI sıfırlamalar (arka plan nötr, anlık sayıyı sıfırla)
-        currentNumberSpan.innerText = "—";
-        timerDisplaySpan.innerText = "—";
-        // referans sayı eski değeri temizleme (yeni okuma başarılı olursa değişecek)
-        // ama geçici olarak eski referans gözükmesin? değişecek.
-        // durum mesajı
-        statusDiv.innerText = "📷 Kameradan referans sayı okunuyor...";
-        
-        // 3. Kameradan sayı oku (OCR)
-        const success = await captureReferenceNumber();
-        if (!success) {
-            // okuma başarısız: her şey durduruldu, referans kaydedilmedi, sistem beklemede kalmasın.
-            referenceNumber = null;
-            referenceSpan.innerText = "—";
-            statusDiv.innerText = "❌ Sayı okunamadı. Lütfen kamerayı net bir rakama yöneltip tekrar deneyin.";
-            resetBackground();
-            // timer ve diğer state'ler zaten kapalı
-            return;
-        }
-        
-        // 4. Referans başarıyla kaydedildi, şimdi 60 saniye bekleme modu (hiçbir kontrol yok)
-        // Önce karşılaştırma döngüsü varsa temizlendi, bekleme modu aktif
-        isWaiting = true;
-        isComparingMode = false;   // karşılaştırma modu pasif
-        // bekleme süresince anlık okunan sayı gösterilmesin, "beklemede" gösterelim
-        currentNumberSpan.innerText = "⏳ Beklemede";
-        // Arka plan nötr tut
-        resetBackground();
-        
-        // Geri sayımı başlat (60 sn)
-        startCountdown(60);
-        statusDiv.innerText = `⏱️ Referans: ${referenceNumber} — 60 saniye boyunca hiçbir kontrol yapılmayacak.`;
-    }
-    
-    // -------- Kamerayı başlat (getUserMedia) ----------
-    async function initCamera() {
-        try {
-            if (mediaStream) {
-                // zaten varsa durdur
-                mediaStream.getTracks().forEach(track => track.stop());
-            }
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
-            mediaStream = stream;
-            video.srcObject = stream;
-            await video.play();
-            statusDiv.innerText = "✅ Kamera aktif. Butona basarak referans sayı kaydedin.";
-        } catch (err) {
-            console.error("Kamera erişim hatası:", err);
-            statusDiv.innerText = "⚠️ Kamera erişilemedi! Lütfen izin verin.";
-            showError("Kamera izni gerekli. Tarayıcı ayarlarını kontrol edin.", 5000);
-        }
-    }
-
-    // -------- Tüm sistem başlangıcı: worker + kamera ----------
-    async function initSystem() {
-        // Önce tesseract worker'ı arka planda başlat
-        await initTesseract();
-        // Kamera başlat
-        await initCamera();
-        // buton olayını bağla
-        saveBtn.addEventListener('click', onSaveButtonClick);
-        // Başlangıçta state temiz
-        haltAllTimersAndComparisons();
-        referenceNumber = null;
-        referenceSpan.innerText = "—";
-        currentNumberSpan.innerText = "—";
-        timerDisplaySpan.innerText = "—";
-        resetBackground();
-        statusDiv.innerText = "🎥 Kamera hazır. 'Grup Boş Kaydet' ile referans oluşturun.";
-    }
-
-    // Sayfa yüklendiğinde başlat
-    window.addEventListener('DOMContentLoaded', initSystem);
-    
-    // Sayfa kapatılırken stream'i durdur ve worker'ı sonlandır (opsiyonel)
-    window.addEventListener('beforeunload', () => {
-        if (mediaStream) {
-            mediaStream.getTracks().forEach(track => track.stop());
-        }
-        if (tesseractWorker) {
-            tesseractWorker.terminate();
-        }
-        if (countdownInterval) clearInterval(countdownInterval);
-        if (compareInterval) clearInterval(compareInterval);
-    });
-</script>
+            // Her saniye canlı güncelle
+            setInterval(guncelle, 1000);
+        })();
+    </script>
 </body>
 </html>
